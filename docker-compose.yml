@@ -1,12 +1,12 @@
 version: "3"
 
 services:
-  postgres: 
+  postgresdb: 
     image: postgres
     environment: 
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: stripe-example
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+      POSTGRES_DB: mms
     ports: 
       - '5432:5432'
   app:
@@ -14,12 +14,13 @@ services:
     container_name: app
     restart: always
     depends_on: 
-      - postgres
+      - postgresdb
     ports: 
       - '3000:3000'
     volumes: 
       - .:/usr/app
     working_dir: /usr/app
+    command: yarn install
     command: yarn dev
     logging: 
       driver: "json-file"

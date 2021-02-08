@@ -1,17 +1,17 @@
 const express = require('express')
+const routes = require('./routes')
+const crons = require('./crons')
+
+require('./database')
 
 const app = express()
 
 app.use(express.json())
+app.use(routes)
+
+crons.start();
 
 const port = process.env.PORT || 3000
-
-app.get('/', (req, res) => {
-    res.json({
-        success: true,
-        message: "thats work!"
-    })
-})
 
 app.listen(port, () => {
     console.log('the server is running on port', port)
