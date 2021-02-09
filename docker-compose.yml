@@ -20,6 +20,7 @@ services:
     volumes: 
       - .:/usr/app
     working_dir: /usr/app
+    command: npm install --global yarn
     command: yarn install
     command: yarn dev
     logging: 

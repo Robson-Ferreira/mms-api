@@ -35,7 +35,7 @@ const insertCandles = async (from, to) => {
             }
 
             if (index >= mms_50 - 1) {
-                result_mms50 = 0
+                result_mms50 = 00
                 const ped_mms50 = resultBtc.data.candles.slice(position_mms50, index + 1)
 
                 ped_mms50.forEach((obg) => {
@@ -59,11 +59,11 @@ const insertCandles = async (from, to) => {
             }
             
             return {
+                price: value.close.toFixed(2),
                 mms_20: result_mms20,
                 mms_50: result_mms50,
                 mms_200: result_mms200,
-                timestap: value.timestamp,
-                price: value.close.toFixed(2)
+                timestap: value.timestamp
             }
         });
 
