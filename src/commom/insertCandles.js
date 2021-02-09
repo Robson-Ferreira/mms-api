@@ -47,7 +47,7 @@ const insertCandles = async (from, to) => {
             }
 
             if (index >= mms_200 - 1) {
-                result_mms50 = 0
+                result_mms200 = 0
                 const ped_mms200 = resultBtc.data.candles.slice(position_mms200, index + 1)
 
                 ped_mms200.forEach((obg) => {

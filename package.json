@@ -13,10 +13,10 @@
         "node-cron": "^2.0.3",
         "pg": "^8.5.1",
         "pg-hstore": "^2.3.3",
-        "sequelize": "^6.5.0"
+        "sequelize": "^6.5.0",
+        "nodemon": "^2.0.7"
     },
     "devDependencies": {
-        "nodemon": "^2.0.7",
         "sequelize-cli": "^6.2.0"
     }
 }
