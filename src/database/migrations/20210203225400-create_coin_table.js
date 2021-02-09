@@ -19,14 +19,7 @@ module.exports = {
 			mms_20: Sequelize.DOUBLE,
 			mms_50: Sequelize.DOUBLE,
 			mms_200: Sequelize.DOUBLE,
-			created_at: {
-				type: Sequelize.DATE,
-				allowNull: false
-			},
-			updated_at: {
-				type: Sequelize.DATE,
-				allowNull: false
-			}
+			timestamp: Sequelize.DATE
 		});
 	},
 

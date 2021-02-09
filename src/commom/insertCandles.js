@@ -1,8 +1,7 @@
 const axios = require('axios')
 const moment = require('moment')
-const Coin = require('../models/Coin')
 
-const insertCandles = async (from, to) => {
+const insertCandles = async () => {
     try {
         const now = 1612656000 //moment().unix(); 
         const lastDay = moment(new Date()).subtract(1, 'y').unix();
@@ -66,12 +65,7 @@ const insertCandles = async (from, to) => {
                 timestap: value.timestamp
             }
         });
-
-        console.log('=============================')
-        console.log('ESSE É O RESULTADOOO')
-        console.table(data)
-        console.log('=============================')
-
+        
         //const resultEth = await consultMercadoBitcoin(now, now, 'BRLETH')
 
     } catch(err) {
@@ -88,8 +82,4 @@ const consultMercadoBitcoin = async (from, to, coin) => {
     }
 }
 
-
-insertCandles()
-
-
-//module.exports = { insertCandles, consultMercadoBitcoin }
+module.exports = { insertCandles, consultMercadoBitcoin }
