@@ -14,18 +14,10 @@ module.exports = {
                 to = moment(parseInt(to)).format("YYYY-MM-DD HH:mm:ss")
             }
 
-            if (!from) {
-                throw new Error("please enter a start date")
-            }
-
             from = moment(parseInt(from)).format("YYYY-MM-DD HH:mm:ss")
 
-            if (range != 20 && range != 50 && range != 200) {
-                throw new Error("the range is not valid, supported: 20, 50 or 200")
-            }
-
             const days = moment(new Date()).diff(from, 'days')
-            console.log(days)
+
             if (days > 365) {
                 throw new Error("the start date greater than 365 days")
             }
