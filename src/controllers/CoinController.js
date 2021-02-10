@@ -30,9 +30,16 @@ module.exports = {
                         [Op.between]: [from, to]
                     }
                 }
+            })
+
+            const data = results.map((register) => {
+                return {
+                    ...register.dataValues,
+                    timestamp: moment(register.timestamp).unix()
+                }
             });
-            
-            return res.status(200).json(results)
+                    
+            return res.status(200).json(data)
 
         } catch(err) {
             return res.status(400).json({

@@ -10,17 +10,34 @@ const insertCandles = async () => {
         const from = moment(new Date()).subtract(1, 'y').unix();
         const to = moment(moment().format("YYYY-MM-DD"), "YYYY-MM-DD").unix();
 
-        const lastRecord = await Coin.findOne({
+        const lastRecordBtcRecord = await Coin.findOne({
+            order: [ [ 'id', 'DESC' ]],
+            where: {
+                pair: 'BRLBTC'
+            },
+        });
+
+        const lastRecordLeth = await Coin.findOne({
+            where: {
+                pair: 'BRLETH'
+            },
             order: [ [ 'id', 'DESC' ]]
         });
 
-        let lastRecordDay = null;
-        let diff = -1;
+        let lastRecordBtcDay = null;
+        let diffBtc = -1;
+
+        let lastRecordLethDay = null;
+        let diffLeth= -1;
         
-        // se possui o último registro, já foi feito a carga inicial, portanto só vou pegar o do dia
-        if (lastRecord) {
-            lastRecordDay = moment(lastRecord.timestamp, "YYYY-MM-DD")
-            diff = lastRecordDay.diff(moment(moment().format("YYYY-MM-DD"), "YYYY-MM-DD"));
+        if (lastRecordBtcRecord) {
+            lastRecordBtcDay = moment(lastRecordBtcRecord.timestamp, "YYYY-MM-DD")
+            diffBtc = moment(moment().format("YYYY-MM-DD"), "YYYY-MM-DD").diff(lastRecordBtcDay, "days");
+        }
+
+        if (lastRecordLeth) {
+            lastRecordLethDay = moment(lastRecordLeth.timestamp, "YYYY-MM-DD")
+            diffLeth = moment(moment().format("YYYY-MM-DD"), "YYYY-MM-DD").diff(lastRecordLethDay, "days");
         }
 
         const mms_20 = 20;
@@ -34,11 +51,15 @@ const insertCandles = async () => {
         const resultLeth = await consultMercadoBitcoin(from, to, 'BRLETH');
         let dataLeth = treatReturn(resultLeth.data.candles, mms_20, mms_50, mms_200, 'BRLETH');
 
-        if (diff > 0) {
-            dataBtc = dataBtc.slice(dataBtc.length - 1 - diff, dataBtc.length)
-            dataLeth = dataBtc.slice(dataBtc.length - 1 - diff, dataBtc.length)
-        } else if (diff === 0 ){
+        if (diffBtc > 0) {
+            dataBtc = dataBtc.slice(dataBtc.length - 1 - diffBtc, dataBtc.length);
+        } else if (diffBtc === 0 ){
             dataBtc = [];
+        }
+
+        if (diffLeth > 0) {
+            dataLeth = dataLeth.slice(dataLeth.length - 1 - diffLeth, dataLeth.length)
+        } else if (diffLeth === 0 ){
             dataLeth = [];
         }
 
@@ -49,13 +70,11 @@ const insertCandles = async () => {
 
     } catch(err) {
         await transaction.rollback();
-        console.log(err.message)
     }
 }
 
 const consultMercadoBitcoin = async (from, to, coin) => {
     try {
-        console.log(`https://mobile.mercadobitcoin.com.br/v4/${coin}/candle?from=${from}&to=${to}&precision=1d`)
         const result = await axios.get(`https://mobile.mercadobitcoin.com.br/v4/${coin}/candle?from=${from}&to=${to}&precision=1d`)
         return result
     } catch(err) {
