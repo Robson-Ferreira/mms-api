@@ -17,7 +17,7 @@ const insertCandles = async () => {
         let lastRecordDay = null;
         let diff = -1;
         
-        // se possui o ultimo reghistro, ja foi feito a carga inicial, portanto só vou pegar o do dia
+        // se possui o último registro, já foi feito a carga inicial, portanto só vou pegar o do dia
         if (lastRecord) {
             lastRecordDay = moment(lastRecord.timestamp, "YYYY-MM-DD")
             diff = lastRecordDay.diff(moment(moment().format("YYYY-MM-DD"), "YYYY-MM-DD"));
@@ -30,7 +30,7 @@ const insertCandles = async () => {
         const resultBtc = await consultMercadoBitcoin(from, to, 'BRLBTC');
         let dataBtc = treatReturn(resultBtc.data.candles, mms_20, mms_50, mms_200, 'BRLBTC');
 
-
+        
         const resultLeth = await consultMercadoBitcoin(from, to, 'BRLETH');
         let dataLeth = treatReturn(resultLeth.data.candles, mms_20, mms_50, mms_200, 'BRLETH');
 
@@ -65,7 +65,6 @@ const consultMercadoBitcoin = async (from, to, coin) => {
 
 const treatReturn = (result, mms_20, mms_50, mms_200, pair) => {
     try {
-
         if (result === null) return [];
 
         let position_mms20 = 0;

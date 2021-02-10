@@ -20,9 +20,7 @@ services:
     volumes: 
       - .:/usr/app
     working_dir: /usr/app
-    command: npm install --global yarn
-    command: yarn install
-    command: yarn dev
+    command: sh -c "yarn install && yarn sequelize db:migrate && yarn dev"
     logging: 
       driver: "json-file"
       options: 

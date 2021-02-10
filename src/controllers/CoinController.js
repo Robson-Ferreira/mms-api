@@ -3,7 +3,6 @@ const { Op } = require('Sequelize')
 const moment = require('moment')
 
 module.exports = {
-
     async mms(req, res) {
         try {
             const { pair } = req.params
@@ -26,7 +25,7 @@ module.exports = {
             }
 
             const days = moment(new Date()).diff(from, 'days')
-
+            console.log(days)
             if (days > 365) {
                 throw new Error("the start date greater than 365 days")
             }
@@ -34,7 +33,7 @@ module.exports = {
             const results = await Coin.findAll({ 
                 attributes: [`mms_${range}`, 'timestamp'],
                 where: { 
-                    pair: pair, 
+                    pair: pair.toUpperCase(), 
                     timestamp: { 
                         [Op.between]: [from, to]
                     }
