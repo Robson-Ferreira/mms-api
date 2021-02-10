@@ -1,17 +1,8 @@
-const Coin = require('../models/Coin')
-const {Sequelize, Op} = require('Sequelize')
+const { Coin } = require('../models')
+const { Op } = require('Sequelize')
 const moment = require('moment')
 
 module.exports = {
-    async insertData(req, res) {
-        const { pair, mms_20, mms_50, mms_200 } = req.body
-
-        const data = await Coin.create({
-            pair, mms_20, mms_50, mms_200
-        })
-
-        res.json(data)
-    },
 
     async mms(req, res) {
         try {
@@ -41,17 +32,14 @@ module.exports = {
             }
 
             const results = await Coin.findAll({ 
+                attributes: [`mms_${range}`, 'timestamp'],
                 where: { 
                     pair: pair, 
-                    created_at: { 
+                    timestamp: { 
                         [Op.between]: [from, to]
                     }
                 }
             });
-
-            if (results.length >= 3) {
-                
-            }
             
             return res.status(200).json(results)
 

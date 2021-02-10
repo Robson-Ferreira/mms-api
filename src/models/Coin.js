@@ -1,14 +1,15 @@
-const { Model, DataTypes } = require('sequelize')
-
-class Coin extends Model {
-    static init(sequelize) {
-        super.init({
-            pair: DataTypes.STRING,
-            mms_20: DataTypes.INTEGER,
-            mms_50: DataTypes.INTEGER,
-            mms_200: DataTypes.INTEGER
-        }, { sequelize })
-    }
+module.exports = (sequelize, DataTypes) => {
+    const Coin = sequelize.define('Coin', {
+      pair: DataTypes.STRING,
+      mms_20: DataTypes.DOUBLE,
+      mms_50: DataTypes.DOUBLE,
+      mms_200: DataTypes.DOUBLE,
+      mms_200: DataTypes.DOUBLE,
+      timestamp: DataTypes.DATE,
+    }, {
+      tableName: 'coins',
+      freezeTableName: true,
+      timestamps: false
+    })
+    return Coin
 }
-
-module.exports = Coin

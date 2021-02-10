@@ -1,8 +1,8 @@
 const cron = require('node-cron');
-const { insertCandles } = require('../commom/insertCandles')
+const { insertCandles } = require('../commom/insertCandles');
 
 const start = () => {
-    cron.schedule('* * * * *', () => {
+    cron.schedule('5 4 * * *', () => {
         insertCandles();
     });
 }

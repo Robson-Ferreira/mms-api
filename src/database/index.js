@@ -1,11 +1,7 @@
 const Sequelize = require('Sequelize')
 const dbConfig = require('../config/database')
 
-const Coin = require('../models/Coin')
-
 const connection = new Sequelize(dbConfig)
-
-Coin.init(connection)
 
 try {
     connection.authenticate()

@@ -1,29 +1,85 @@
 const axios = require('axios')
-const moment = require('moment')
+const moment = require('moment');
+const { Coin, sequelize } = require('../models/');
 
 const insertCandles = async () => {
+    
+    const transaction =  await sequelize.transaction();
+    
     try {
-        const now = 1612656000 //moment().unix(); 
-        const lastDay = moment(new Date()).subtract(1, 'y').unix();
+        const from = moment(new Date()).subtract(1, 'y').unix();
+        const to = moment(moment().format("YYYY-MM-DD"), "YYYY-MM-DD").unix();
 
-        const resultBtc = await consultMercadoBitcoin(lastDay, now, 'BRLBTC');
+        const lastRecord = await Coin.findOne({
+            order: [ [ 'id', 'DESC' ]]
+        });
+
+        let lastRecordDay = null;
+        let diff = -1;
         
+        // se possui o ultimo reghistro, ja foi feito a carga inicial, portanto só vou pegar o do dia
+        if (lastRecord) {
+            lastRecordDay = moment(lastRecord.timestamp, "YYYY-MM-DD")
+            diff = lastRecordDay.diff(moment(moment().format("YYYY-MM-DD"), "YYYY-MM-DD"));
+        }
+
         const mms_20 = 20;
         const mms_50 = 50;
         const mms_200 = 200;
-        
+
+        const resultBtc = await consultMercadoBitcoin(from, to, 'BRLBTC');
+        let dataBtc = treatReturn(resultBtc.data.candles, mms_20, mms_50, mms_200, 'BRLBTC');
+
+
+        const resultLeth = await consultMercadoBitcoin(from, to, 'BRLETH');
+        let dataLeth = treatReturn(resultLeth.data.candles, mms_20, mms_50, mms_200, 'BRLETH');
+
+        if (diff > 0) {
+            dataBtc = dataBtc.slice(dataBtc.length - 1 - diff, dataBtc.length)
+            dataLeth = dataBtc.slice(dataBtc.length - 1 - diff, dataBtc.length)
+        } else if (diff === 0 ){
+            dataBtc = [];
+            dataLeth = [];
+        }
+
+        await Coin.bulkCreate(dataBtc, { transaction });
+        await Coin.bulkCreate(dataLeth, { transaction });
+
+        await transaction.commit();
+
+    } catch(err) {
+        await transaction.rollback();
+        console.log(err.message)
+    }
+}
+
+const consultMercadoBitcoin = async (from, to, coin) => {
+    try {
+        console.log(`https://mobile.mercadobitcoin.com.br/v4/${coin}/candle?from=${from}&to=${to}&precision=1d`)
+        const result = await axios.get(`https://mobile.mercadobitcoin.com.br/v4/${coin}/candle?from=${from}&to=${to}&precision=1d`)
+        return result
+    } catch(err) {
+        throw err;
+    }
+}
+
+const treatReturn = (result, mms_20, mms_50, mms_200, pair) => {
+    try {
+
+        if (result === null) return [];
+
         let position_mms20 = 0;
         let position_mms50 = 0;
         let position_mms200 = 0;
 
-        const data = resultBtc.data.candles.map((value, index) => {
+        const data = result.map((value, index) => {
             let result_mms20 = null;
             let result_mms50 = null;
             let result_mms200 = null;
 
             if (index >= mms_20 - 1) {
                 result_mms20 = 0
-                const ped_mms20 = resultBtc.data.candles.slice(position_mms20, index + 1)
+                const ped_mms20 = result.slice(position_mms20, index + 1)
 
                 ped_mms20.forEach((obg) => {
                     result_mms20 += obg.close
@@ -35,7 +91,7 @@ const insertCandles = async () => {
 
             if (index >= mms_50 - 1) {
                 result_mms50 = 00
-                const ped_mms50 = resultBtc.data.candles.slice(position_mms50, index + 1)
+                const ped_mms50 = result.slice(position_mms50, index + 1)
 
                 ped_mms50.forEach((obg) => {
                     result_mms50 += obg.close
@@ -47,7 +103,7 @@ const insertCandles = async () => {
 
             if (index >= mms_200 - 1) {
                 result_mms200 = 0
-                const ped_mms200 = resultBtc.data.candles.slice(position_mms200, index + 1)
+                const ped_mms200 = result.slice(position_mms200, index + 1)
 
                 ped_mms200.forEach((obg) => {
                     result_mms200 += obg.close
@@ -56,30 +112,18 @@ const insertCandles = async () => {
                 result_mms200 = (result_mms200 / mms_200).toFixed(2)
                 position_mms200 += 1;
             }
-            
             return {
-                price: value.close.toFixed(2),
+                pair,
                 mms_20: result_mms20,
                 mms_50: result_mms50,
                 mms_200: result_mms200,
-                timestap: value.timestamp
+                timestamp: moment(new Date(value.timestamp * 1000)).format('YYYY-MM-DD HH:mm:ss'),
             }
         });
-        
-        //const resultEth = await consultMercadoBitcoin(now, now, 'BRLETH')
-
-    } catch(err) {
-        console.log(err.message)
-    }
-}
-
-const consultMercadoBitcoin = async (from, to, coin) => {
-    try {
-        const result = await axios.get(`https://mobile.mercadobitcoin.com.br/v4/${coin}/candle?from=${from}&to=${to}&precision=1d`)
-        return result
+        return data;
     } catch(err) {
         throw err;
     }
 }
 
-module.exports = { insertCandles, consultMercadoBitcoin }
+module.exports = { insertCandles }
