@@ -4,7 +4,6 @@ const crons = require('./crons');
 const { insertCandles } = require('./commom/insertCandles');
 
 require('./database');
-
 const app = express();
 
 app.use(express.json());
